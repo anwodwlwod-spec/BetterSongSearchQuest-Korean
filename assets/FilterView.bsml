@@ -38,7 +38,7 @@
 					<text text='&lt;color=#DDD>BeatSaver' align='Center' underlined='true' bold='true' font-size='3.5' color='#69B' size-delta-y='5'/>
 					<scroll-view ignore-layout='true' size-delta-x='2' size-delta-y='-2' anchor-min-y='-0.2' anchor-max-y='0.8' anchor-max-x="1.09">
 						<vertical child-control-height='false' preferred-width='60' vertical-fit='PreferredSize' pad-left='1' pad-right='-2'>
-							<slider-setting text='최소 업로드 날짜' id='hideOlderThanSlider' value="hideOlderThan"  bind-value="true" apply-on-change="true" min="0" max='2' increment='1' formatter='DateTimeToStr' on-change="UpdateFilterSettings"/>
+							<slider-setting text='최소 등록일' id='hideOlderThanSlider' value="hideOlderThan"  bind-value="true" apply-on-change="true" min="0" max='2' increment='1' formatter='DateTimeToStr' on-change="UpdateFilterSettings"/>
 							<slider-setting id="minimumRatingSlider" text='최소 평점' value="minimumRating" bind-value="true" apply-on-change="true" max='0.9' increment='0.05' formatter='PercentFloat' on-change="UpdateFilterSettings"/>
 							<slider-setting text='최소 투표 수' id='minimumVotesSlider' value="minimumVotes" bind-value="true" apply-on-change="true" increment='1' max='100' on-change="UpdateFilterSettings"/>
 							<string-setting text='업로더' id='uploadersStringControl' value='uploadersString' bind-value='true' apply-on-change='true' on-change="UpdateFilterSettings" hover-hint='여러 업로더 이름을 공백으로 구분해 입력할 수 있습니다. 입력 맨 앞에 느낌표(!)를 붙이면 해당 업로더들을 제외하는 블랙리스트로 작동합니다'/>
