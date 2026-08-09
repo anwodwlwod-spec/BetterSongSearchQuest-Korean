@@ -130,7 +130,7 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BetterSongSearch::UI::ViewControllers, SongList
     DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::UI::Button>, downloadButton);
     DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::UI::Button>, playButton);
     DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::UI::Button>, infoButton);
-    BSML_OPTIONS_LIST_OBJECT(sortModeSelections, "Newest", "Oldest", "Latest Ranked", "Most Stars", "Least Stars", "Best rated", "Worst rated");
+    BSML_OPTIONS_LIST_OBJECT(sortModeSelections, "최신순", "오래된순", "최근 랭크", "별점 높은순", "별점 낮은순", "평가 높은순", "평가 낮은순");
 
     DECLARE_INSTANCE_FIELD(UnityW<BSML::DropdownListSetting>, sortDropdown);
     DECLARE_INSTANCE_FIELD(StringW, selectedSortMode);
