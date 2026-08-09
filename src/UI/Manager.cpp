@@ -21,7 +21,7 @@ using namespace GlobalNamespace;
 
 void BetterSongSearch::UI::Manager::Init() {
     // Register the menu button
-    BSML::Register::RegisterMenuButton("Better Song Search", "Search songs, but better", [this]() {
+    BSML::Register::RegisterMenuButton("Better Song Search", "더 나은 곡 검색", [this]() {
         DEBUG("MenuButtonClick");
         ShowFlow(false);
     });
