@@ -413,7 +413,7 @@ void ViewControllers::FilterViewController::OpenSponsorsModal() {
     }
 }
 
-void ViewControllers::FilterViewController::CloseSponsorsModal() {
+void ViewControllers::FilterViewController::CloseSponsorModal() {
     if (this->sponsorModal) {
         sponsorModal->Hide();
     }
