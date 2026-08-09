@@ -1,19 +1,19 @@
 <modal id="rootModal" clickerino-offerino-closerino='true' move-to-center="true"	 size-delta-x='120' size-delta-y='80' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'  xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 	<vertical horizontal-fit='Unconstrained' pad='4' pad-top='9'>
 		<horizontal bg='panel-top-gradient' ignore-layout='true' anchor-max-x='.97' anchor-min-x='.03' anchor-min-y='1' anchor-pos-y='-5'>
-			<text text='BetterSongSearch - Upload Details' align='Center'/>
+			<text text='BetterSongSearch - 업로드 정보' align='Center'/>
 		</horizontal>
 		<horizontal vertical-fit='Unconstrained' horizontal-fit='Unconstrained'>
 			<vertical child-expand-height='false' preferred-width="25">
-				<text text="Song Key" align="Center" font-color='#7CF'/>
-                <clickable-text id="selectedSongKey" align="Center" all-uppercase='true' on-click="CopyBSR" hover-hint="Click to copy the song key"/>
-                <text text="BeatSaver Rating" align="Center" font-color='#7CF'/>
+				<text text="곡 키" align="Center" font-color='#7CF'/>
+                <clickable-text id="selectedSongKey" align="Center" all-uppercase='true' on-click="CopyBSR" hover-hint="클릭하여 곡 키를 복사합니다"/>
+                <text text="BeatSaver 평점" align="Center" font-color='#7CF'/>
                 <text id="selectedRating" align="Center"/>
-                <text text="Characteristics" align="Center" font-color='#7CF'/>
+                <text text="특성" align="Center" font-color='#7CF'/>
                 <text id="selectedCharacteristics" align="Center" font-size='3.3' word-wrapping='true'/>
 			</vertical>
 			<vertical child-expand-height="false" pad-left="6"  horizontal-fit='PreferredSize' preferred-width="80">
-				<text text="Description" align="Center" font-color='#7CF'/>
+				<text text="설명" align="Center" font-color='#7CF'/>
 				<loading id="songDetailsLoading" preserve-aspect="true" preferred-height="20"/>
 				<vertical horizontal-fit='PreferredSize' preferred-width="80" preferred-height="70">
 					<text-page id="selectedSongDescription" align="Center" word-wrapping="true"/>
@@ -21,9 +21,9 @@
 			</vertical>
 		</horizontal>
 		<horizontal>
-			<button on-click='OpenBeatSaver' text='Open BeatSaver'/>
-			<button on-click='OpenMapPreview' text='Web Preview' hover-hint="This downloads the entire map in the browser btw"/>
-			<button on-click='CloseModal' text='Close Details'/>
+			<button on-click='OpenBeatSaver' text='BeatSaver 열기'/>
+			<button on-click='OpenMapPreview' text='웹 미리보기' hover-hint="브라우저에서 전체 맵을 다운로드하여 미리보기를 엽니다"/>
+			<button on-click='CloseModal' text='정보 닫기'/>
 		</horizontal>
 	</vertical>
 </modal>
