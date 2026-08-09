@@ -207,7 +207,7 @@ void ViewControllers::FilterViewController::PostParse() {
         int seconds = (int) totalSeconds % 60;
 
         if (value >= SONG_LENGTH_FILTER_MAX) {
-            return (std::string) "Unlimited";
+            return (std::string) "무제한";
         } else {
             return fmt::format("{:02}:{:02}", minutes, seconds);
         }
@@ -226,7 +226,7 @@ void ViewControllers::FilterViewController::PostParse() {
     };
     std::function maxNJSFormat = [](float value) {
         if (value >= NJS_FILTER_MAX) {
-            return (std::string) "Unlimited";
+            return (std::string) "무제한";
         }
         return fmt::format("{:.1f}", value);
     };
@@ -239,7 +239,7 @@ void ViewControllers::FilterViewController::PostParse() {
     };
     std::function maxNPSFormat = [](float value) {
         if (value >= NPS_FILTER_MAX) {
-            return (std::string) "Unlimited";
+            return (std::string) "무제한";
         }
         return fmt::format("{:.1f}", value);
     };
@@ -252,7 +252,7 @@ void ViewControllers::FilterViewController::PostParse() {
     };
     std::function maxStarFormat = [](float value) {
         if (value >= STAR_FILTER_MAX) {
-            return (std::string) "Unlimited";
+            return (std::string) "무제한";
         }
         return fmt::format("{:.1f}", value);
     };
@@ -277,7 +277,7 @@ void ViewControllers::FilterViewController::PostParse() {
         auto uploaders = split(value, " ");
 
         return fmt::format(
-            "{} <color=#CCC>{}</color> uploader", (blacklist ? "Hiding" : "Show only"), uploaders.size(), (uploaders.size() == 1 ? "" : "s")
+            "{} <color=#CCC>{}</color>명", (blacklist ? "숨김" : "표시"), uploaders.size()
         );
     };
     uploadersStringControl->formatter = uploadersStringFormat;
@@ -339,10 +339,10 @@ void ViewControllers::FilterViewController::PostParse() {
 
         std::string timeScrapedString = fmt::format("{:%d %b %y - %H:%M}", local_tm);
 
-        this->datasetInfoLabel->set_text(fmt::format("{} songs in dataset.  Last update: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
+        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
         );
     } else {
-        datasetInfoLabel->set_text("Loading...");
+        datasetInfoLabel->set_text("불러오는 중...");
     }
 }
 
@@ -373,10 +373,10 @@ void ViewControllers::FilterViewController::UpdateGenreFilterText() {
     // Get the current filter
     auto [included, excluded] = dataHolder.filterOptions.CountTags();
 
-    std::string genreFilter = "Any";
+    std::string genreFilter = "전체";
 
     if (included > 0 || excluded > 0) {
-        genreFilter = fmt::format("{} Incl. {} Excl.", included, excluded);
+        genreFilter = fmt::format("포함 {} / 제외 {}", included, excluded);
     }
 
     if (genrePickButton) {
@@ -413,7 +413,7 @@ void ViewControllers::FilterViewController::OpenSponsorsModal() {
     }
 }
 
-void ViewControllers::FilterViewController::CloseSponsorModal() {
+void ViewControllers::FilterViewController::CloseSponsorsModal() {
     if (this->sponsorModal) {
         sponsorModal->Hide();
     }
@@ -600,7 +600,7 @@ void ViewControllers::FilterViewController::OnLoaded() {
 
         std::string timeScrapedString = fmt::format("{:%d %b %y - %H:%M}", local_tm);
 
-        this->datasetInfoLabel->set_text(fmt::format("{} songs in dataset.  Last update: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
+        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
         );
     });
 }
@@ -608,7 +608,7 @@ void ViewControllers::FilterViewController::OnLoaded() {
 void ViewControllers::FilterViewController::OnFailed(std::string message) {
     DEBUG("Failed to load dataset: {}", message);
     BSML::MainThreadScheduler::Schedule([this, message] {
-        this->datasetInfoLabel->set_text(fmt::format("{}, click to retry", message));
+        this->datasetInfoLabel->set_text(fmt::format("{} · 클릭하여 다시 시도", message));
     });
 }
 
