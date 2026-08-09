@@ -32,7 +32,6 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::ViewControllers, FilterViewControlle
     DECLARE_INSTANCE_FIELD(UnityW<Modals::GenrePicker>, genrePickerModal);
     DECLARE_INSTANCE_FIELD(UnityW<BSML::ModalView>, sponsorModal);
 
-
     DECLARE_INSTANCE_METHOD(void, PostParse);
 
     // Modal related things
@@ -53,15 +52,14 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::ViewControllers, FilterViewControlle
     DECLARE_INSTANCE_METHOD(void, ClearFilters);
     DECLARE_INSTANCE_METHOD(void, ShowPresets);
 
-
     // Options for dropdowns
-    BSML_OPTIONS_LIST_OBJECT(downloadedFilterOptions, "Show All", "Only Downloaded", "Hide Downloaded");
-    BSML_OPTIONS_LIST_OBJECT(scoreFilterOptions, "Show All", "Hide Passed", "Only Passed");
-    BSML_OPTIONS_LIST_OBJECT(rankedFilterOptions, "Show All", "ScoreSaber Ranked", "BeatLeader Ranked", "Scoresaber Qualified", "BeatLeader Qualified");
-    BSML_OPTIONS_LIST_OBJECT(characteristics, "Any", "Custom", "Standard", "One Saber", "No Arrows", "90 Degrees", "360 Degrees", "Lightshow", "Lawless");
-    BSML_OPTIONS_LIST_OBJECT(difficulties, "Any", "Easy", "Normal", "Hard", "Expert", "Expert+");
-    BSML_OPTIONS_LIST_OBJECT(modOptions, "Any", "Noodle Extensions", "Mapping Extensions", "Chroma", "Cinema", "None");
-    BSML_OPTIONS_LIST_OBJECT(mapStyles,  "Any", "accuracy", "balanced", "challenge", "dance", "fitness", "speed", "tech");
+    BSML_OPTIONS_LIST_OBJECT(downloadedFilterOptions, "전체", "다운로드만", "다운로드 제외");
+    BSML_OPTIONS_LIST_OBJECT(scoreFilterOptions, "전체", "통과곡 제외", "통과곡만");
+    BSML_OPTIONS_LIST_OBJECT(rankedFilterOptions, "전체", "ScoreSaber 랭크", "BeatLeader 랭크", "ScoreSaber 예선", "BeatLeader 예선");
+    BSML_OPTIONS_LIST_OBJECT(characteristics, "전체", "커스텀", "Standard", "One Saber", "No Arrows", "90 Degrees", "360 Degrees", "Lightshow", "Lawless");
+    BSML_OPTIONS_LIST_OBJECT(difficulties, "전체", "Easy", "Normal", "Hard", "Expert", "Expert+");
+    BSML_OPTIONS_LIST_OBJECT(modOptions, "전체", "Noodle Extensions", "Mapping Extensions", "Chroma", "Cinema", "없음");
+    BSML_OPTIONS_LIST_OBJECT(mapStyles, "Any", "accuracy", "balanced", "challenge", "dance", "fitness", "speed", "tech");
 
     // Values for dropdowns
     DECLARE_INSTANCE_FIELD(StringW, existingSongs);
@@ -138,11 +136,10 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::ViewControllers, FilterViewControlle
 
     // DECLARE_INSTANCE_METHOD(StringW, minRatingSliderFormatFunction, float value);
     // DECLARE_INSTANCE_METHOD(StringW, minUploadDateSliderFormatFunciton, float monthsSinceFirstUpload);
-    public:
-        custom_types::Helpers::Coroutine _UpdateFilterSettings();
-        void OnLoaded();
-        void OnFailed(std::string error);
-        void OnSearchComplete();
-        BetterSongSearch::Util::RatelimitCoroutine* limitedUpdateFilterSettings = nullptr;
-}
-;
+   public:
+    custom_types::Helpers::Coroutine _UpdateFilterSettings();
+    void OnLoaded();
+    void OnFailed(std::string error);
+    void OnSearchComplete();
+    BetterSongSearch::Util::RatelimitCoroutine* limitedUpdateFilterSettings = nullptr;
+};
