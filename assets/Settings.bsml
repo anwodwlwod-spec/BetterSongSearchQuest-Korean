@@ -2,9 +2,9 @@
 	<modal id="settingsModal" clickerino-offerino-closerino='true' size-delta-x='80' size-delta-y='45' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 		<vertical horizontal-fit='Unconstrained' pad='4' pad-top='9'>
 			<horizontal bg='panel-top-gradient' ignore-layout='true' anchor-max-x='.97' anchor-min-x='.03' anchor-min-y='1' anchor-pos-y='-5'>
-				<text text='BetterSongSearch - 설정' align='Center'/>
+				<text text='향상된 곡 검색 - 설정' align='Center'/>
 			</horizontal>
-			<toggle-setting text='솔로 종료 후 BSS로 복귀' value="returnToBssFromSolo" bind-value="true" apply-on-change="true" hover-hint="BetterSongSearch에서 곡을 플레이한 경우 솔로 메뉴를 나가면 BetterSongSearch로 돌아옵니다"/>
+			<toggle-setting text='솔로 종료 후 향상된 곡 검색으로 복귀' value="returnToBssFromSolo" bind-value="true" apply-on-change="true" hover-hint="향상된 곡 검색에서 곡을 플레이한 경우 솔로 메뉴를 나가면 향상된 곡 검색으로 돌아옵니다"/>
 			<toggle-setting text='곡 미리듣기 다운로드' value="loadSongPreviews" bind-value="true" apply-on-change="true" hover-hint="아직 다운로드하지 않은 곡의 짧은 미리듣기를 불러와 재생합니다"/>
 			<toggle-setting text='작은 글꼴 크기' value="smallerFontSize" bind-value="true" apply-on-change="true" hover-hint="곡 목록의 글꼴 크기를 더 작게 표시합니다"/>
 			<list-setting text='선호 리더보드' value="preferredLeaderboard" choices='preferredLeaderboardOptions' bind-value="true" apply-on-change="true" hover-hint="특정 리더보드로 필터하지 않을 때 사용할 선호 리더보드를 설정합니다" />
