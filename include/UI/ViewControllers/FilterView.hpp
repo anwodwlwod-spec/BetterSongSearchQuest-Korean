@@ -59,7 +59,7 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::ViewControllers, FilterViewControlle
     BSML_OPTIONS_LIST_OBJECT(characteristics, "전체", "커스텀", "표준", "한손 세이버", "화살표 없음", "90도", "360도", "라이트쇼", "무규칙");
     BSML_OPTIONS_LIST_OBJECT(difficulties, "전체", "쉬움", "보통", "어려움", "전문가", "전문가+");
     BSML_OPTIONS_LIST_OBJECT(modOptions, "전체", "Noodle Extensions", "Mapping Extensions", "Chroma", "Cinema", "없음");
-    BSML_OPTIONS_LIST_OBJECT(mapStyles, "Any", "accuracy", "balanced", "challenge", "dance", "fitness", "speed", "tech");
+    BSML_OPTIONS_LIST_OBJECT(mapStyles, "전체", "정확도", "균형", "도전", "댄스", "운동", "스피드", "테크");
 
     // Values for dropdowns
     DECLARE_INSTANCE_FIELD(StringW, existingSongs);
