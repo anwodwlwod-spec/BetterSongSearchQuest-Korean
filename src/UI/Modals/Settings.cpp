@@ -80,23 +80,31 @@ void Modals::Settings::set_smallerFontSize(bool value) {
 }
 
 StringW Modals::Settings::get_preferredLeaderboard() {
-    // Preferred Leaderboard
     std::string preferredLeaderboard = getPluginConfig().PreferredLeaderboard.GetValue();
-    if (LEADERBOARD_MAP.contains(preferredLeaderboard)) {
-        return preferredLeaderboard;
-    } else {
+    if (preferredLeaderboard == "Beatleader") {
+        return "비트리더";
+    }
+
+    if (preferredLeaderboard != "Scoresaber") {
         dataHolder.preferredLeaderboard = FilterTypes::PreferredLeaderBoard::ScoreSaber;
         getPluginConfig().PreferredLeaderboard.SetValue("Scoresaber");
-        return "Scoresaber";
     }
+    return "스코어세이버";
 }
 
 void Modals::Settings::set_preferredLeaderboard(StringW value) {
-    if (LEADERBOARD_MAP.contains(value)) {
-        dataHolder.preferredLeaderboard = LEADERBOARD_MAP.at(value);
-        getPluginConfig().PreferredLeaderboard.SetValue(value);
-        auto controller = fcInstance->SongListController;
-        dataHolder.forceReload = true;
-        controller->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
+    std::string configValue;
+    if (value == "비트리더") {
+        configValue = "Beatleader";
+    } else if (value == "스코어세이버") {
+        configValue = "Scoresaber";
+    } else {
+        return;
     }
+
+    dataHolder.preferredLeaderboard = LEADERBOARD_MAP.at(configValue);
+    getPluginConfig().PreferredLeaderboard.SetValue(configValue);
+    auto controller = fcInstance->SongListController;
+    dataHolder.forceReload = true;
+    controller->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
 }
