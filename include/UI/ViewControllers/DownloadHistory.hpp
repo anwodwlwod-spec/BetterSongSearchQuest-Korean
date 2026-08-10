@@ -65,25 +65,25 @@ public:
 
     static std::string StatusToString(DownloadStatus status){
         if (status == DownloadStatus::Downloading) {
-            return "Downloading";
+            return "다운로드 중";
         }
         if (status == DownloadStatus::Preparing) {
-            return "Preparing";
+            return "준비 중";
         }
         if (status == DownloadStatus::Extracting) {
-            return "Extracting";
+            return "압축 해제 중";
         }
         if (status == DownloadStatus::Queued) {
-            return "Queued";
+            return "대기 중";
         }
         if (status == DownloadStatus::Failed) {
-            return "Failed";
+            return "실패";
         }
         if (status == DownloadStatus::Downloaded) {
-            return "Downloaded";
+            return "다운로드 완료";
         }
         if (status == DownloadStatus::Loaded) {
-            return "Loaded";
+            return "불러옴";
         }
         return "";
 
