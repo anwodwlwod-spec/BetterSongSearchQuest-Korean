@@ -2,10 +2,12 @@
 
 #include "assets.hpp"
 #include "bsml/shared/BSML.hpp"
+#include "bsml/shared/Helpers/getters.hpp"
 #include "DataHolder.hpp"
 #include "PluginConfig.hpp"
 #include "songcore/shared/SongCore.hpp"
 #include "UI/FlowCoordinators/BetterSongSearchFlowCoordinator.hpp"
+#include "UnityEngine/Canvas.hpp"
 #include "Util/CurrentTimeMs.hpp"
 
 using namespace BetterSongSearch::UI;
@@ -31,7 +33,25 @@ void Modals::Settings::OpenModal() {
         BSML::parse_and_construct(Assets::Settings_bsml, this->get_transform(), this);
         initialized = true;
     }
+
     this->settingsModal->Show();
+
+    // Quest-BSML raises modal canvases above the rest of the screen when shown.
+    // Put only the shared hover-hint controller on its own nested canvas and
+    // place it one sorting step above this modal so hints remain readable.
+    auto hoverHintController = BSML::Helpers::GetHoverHintController();
+    auto modalCanvas = this->settingsModal->get_gameObject()->GetComponent<UnityEngine::Canvas*>();
+    if (hoverHintController && modalCanvas) {
+        auto hoverHintObject = hoverHintController->get_gameObject();
+        auto hoverCanvas = hoverHintObject->GetComponent<UnityEngine::Canvas*>();
+        if (!hoverCanvas) {
+            hoverCanvas = hoverHintObject->AddComponent<UnityEngine::Canvas*>();
+        }
+
+        hoverCanvas->set_overrideSorting(true);
+        hoverCanvas->set_sortingLayerID(modalCanvas->get_sortingLayerID());
+        hoverCanvas->set_sortingOrder(modalCanvas->get_sortingOrder() + 1);
+    }
 }
 
 bool Modals::Settings::get_returnToBssFromSolo() {
