@@ -1,7 +1,7 @@
 ﻿<!-- old preferred-width="130"  anchor-pos-y="10.5" anchor-min-y="0"  -->
 <vertical preferred-width="130" anchor-min-y="1" child-control-height="false" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 	<horizontal bg='panel-top-gradient' id='filterbarContainer' child-align='MiddleRight' child-control-width='false'>
-		<horizontal ignore-layout='true' pad-top='-1'>
+		<horizontal ignore-layout='true' pad-top='-0.5'>
 			<text text='검색 필터' align='Center' font-size='7' italics='true'/>
 		</horizontal>
 		<horizontal horizontal-fit='PreferredSize' spacing='2' pad-right='1'>
@@ -17,7 +17,7 @@
 					<list-setting id="existingSongsSetting" text='다운로드 여부' value="existingSongs" choices='downloadedFilterOptions' bind-value="true" apply-on-change="true" on-change="UpdateFilterSettings"/>
 					<list-setting id="existingScoreSetting" text='로컬 점수' value="existingScore" choices='scoreFilterOptions' bind-value="true" apply-on-change="true" on-change="UpdateFilterSettings"/>
 					<slider-setting id="minimumSongLengthSlider" text='길이' value="minimumSongLength" bind-value="true" apply-on-change="true" max='10' increment='0.25' formatter='FormatSongLengthLimitFloat' on-change="UpdateFilterSettings"/>
-					<slider-setting id="maximumSongLengthSlider" text='MERGE_TO_PREV' value="maximumSongLength" bind-value="true" apply-on-change="true" max='15' increment='0.25' formatter='FormatSongLengthLimitFloat' on-change="UpdateFilterSettings"/>
+					<slider-setting id="maximumSongLengthSlider" text='MERGE_TO_PREV' value="maximumSongLength" bind-value="true" apply-on-change="true" max='15' increment='0.25' formatter='FormatMaxSongLengthLimitFloat' on-change="UpdateFilterSettings"/>
 				</vertical>
 				<vertical child-control-height='false' bg='panel-top' pad='2' pad-bottom='1' pad-top='1' preferred-width='64'>
 					<text text='&lt;color=#DDD>매핑' align='Center' underlined='true' bold='true'  font-size='3.5' color='#69B' size-delta-y='5'/>
