@@ -72,57 +72,57 @@ namespace BetterSongSearch::Util {
     std::string httpErrorToString(int code) {
         switch (code) {
             case 400:
-                return "Bad Request";
+                return "잘못된 요청";
             case 401:
-                return "Unauthorized";
+                return "인증되지 않음";
             case 403:
-                return "Forbidden";
+                return "접근이 거부되었습니다";
             case 404:
-                return "Not Found";
+                return "찾을 수 없습니다";
             case 405:
-                return "Method Not Allowed";
+                return "허용되지 않은 요청 방식";
             case 429:
-                return "Too Many Requests";
+                return "요청이 너무 많습니다";
             case 500:
-                return "Internal Server Error";
+                return "서버 내부 오류";
             case 502:
-                return "Bad Gateway";
+                return "게이트웨이 오류";
             case 503:
-                return "Service Unavailable";
+                return "서비스를 사용할 수 없습니다";
             case 504:
-                return "Gateway Timeout";
+                return "게이트웨이 응답 시간 초과";
             default:
-                return fmt::format("HTTP Error {}", code);
+                return fmt::format("HTTP 오류 {}", code);
         }
     }
 
     std::string curlErrorToString(int code) {
         switch (code) {
             case 0:  // CURLE_OK
-                return "No error";
+                return "오류 없음";
             case 1:  // CURLE_UNSUPPORTED_PROTOCOL
-                return "Unsupported protocol";
+                return "지원하지 않는 프로토콜";
             case 2:  // CURLE_FAILED_INIT
-                return "Failed to initialize cURL";
+                return "cURL 초기화 실패";
             case 3:  // CURLE_URL_MALFORMAT
-                return "Malformed URL format";
+                return "잘못된 URL 형식";
             case 6:  // CURLE_COULDNT_RESOLVE_HOST
-                return "Couldn't resolve host";
+                return "호스트 주소를 확인할 수 없습니다";
             case 7:  // CURLE_COULDNT_CONNECT
-                return "Couldn't connect to server";
+                return "서버에 연결할 수 없습니다";
             case 16:  // CURLE_HTTP2
-                return "HTTP/2 framing layer error";
+                return "HTTP/2 통신 오류";
             case 28:  // CURLE_OPERATION_TIMEDOUT
-                return "Operation timed out";
+                return "작업 시간이 초과되었습니다";
             case 35:  // CURLE_SSL_CONNECT_ERROR
-                return "SSL connection error";
+                return "SSL 연결 오류";
             case 52:  // CURLE_GOT_NOTHING
-                return "Server returned nothing";
+                return "서버에서 응답이 없습니다";
             case 78:  // CURLE_REMOTE_FILE_NOT_FOUND
-                return "Remote file not found";
+                return "원격 파일을 찾을 수 없습니다";
 
             default:
-                return fmt::format("Code {}", code);
+                return fmt::format("오류 코드 {}", code);
         }
     }
 }  // namespace BetterSongSearch::Util
