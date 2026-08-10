@@ -55,6 +55,31 @@ DEFINE_TYPE(BetterSongSearch::UI::ViewControllers, FilterViewController);
         getPluginConfig().configName.SetValue(static_cast<int>(value));       \
     }
 
+static std::string MapStyleDisplayToRaw(StringW value) {
+    std::string display = (std::string) value;
+    if (display == "전체") return "Any";
+    if (display == "정확도") return "accuracy";
+    if (display == "균형") return "balanced";
+    if (display == "도전") return "challenge";
+    if (display == "댄스") return "dance";
+    if (display == "운동") return "fitness";
+    if (display == "스피드") return "speed";
+    if (display == "테크") return "tech";
+    return display;
+}
+
+static StringW MapStyleRawToDisplay(std::string raw) {
+    if (raw == "Any" || raw == "All") return "전체";
+    if (raw == "accuracy") return "정확도";
+    if (raw == "balanced") return "균형";
+    if (raw == "challenge") return "도전";
+    if (raw == "dance") return "댄스";
+    if (raw == "fitness") return "운동";
+    if (raw == "speed") return "스피드";
+    if (raw == "tech") return "테크";
+    return raw;
+}
+
 // TODO: Fix unlimited to better search songs outside of filters boundaries
 custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateFilterSettings() {
     // Wait for next frame
@@ -79,9 +104,10 @@ custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateF
     SAVE_NUMBER_CONFIG(this->minimumRating, MinRating);
     SAVE_INTEGER_CONFIG(this->minimumVotes, MinVotes);
 
-    if (this->mapStyleString != getPluginConfig().MapStyleString.GetValue()) {
+    auto rawMapStyle = MapStyleDisplayToRaw(this->mapStyleString);
+    if (rawMapStyle != getPluginConfig().MapStyleString.GetValue()) {
         filtersChanged = true;
-        getPluginConfig().MapStyleString.SetValue(this->mapStyleString);
+        getPluginConfig().MapStyleString.SetValue(rawMapStyle);
     }
 
     // Special case for saving date
@@ -282,7 +308,6 @@ void ViewControllers::FilterViewController::PostParse() {
         );
     };
     uploadersStringControl->formatter = uploadersStringFormat;
-    mapStyleDropdown->formatter = Formatters::FormatMapStyle;
 
     ForceFormatValues();
 
@@ -407,6 +432,7 @@ void ViewControllers::FilterViewController::ForceFormatValues() {
 void ViewControllers::FilterViewController::UpdateFilterSettings() {
     // We need to wait 1 frame for all the properties to get applied and then save the values?
     coro(limitedUpdateFilterSettings->CallNextFrame());
+    DEBUG("UpdateFilterSettings");
 }
 
 // Sponsors related things
@@ -458,7 +484,7 @@ void ViewControllers::FilterViewController::UpdateLocalState() {
     this->onlyCuratedMaps = getPluginConfig().OnlyCuratedMaps.GetValue();
     this->onlyVerifiedMappers = getPluginConfig().OnlyVerifiedMappers.GetValue();
     this->onlyV3Maps = getPluginConfig().OnlyV3Maps.GetValue();
-    this->mapStyleString = getPluginConfig().MapStyleString.GetValue();
+    this->mapStyleString = MapStyleRawToDisplay(getPluginConfig().MapStyleString.GetValue());
 }
 
 void ViewControllers::FilterViewController::ForceRefreshUI() {
