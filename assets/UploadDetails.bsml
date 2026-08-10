@@ -7,7 +7,7 @@
 			<vertical child-expand-height='false' preferred-width="25">
 				<text text="곡 키" align="Center" font-color='#7CF'/>
                 <clickable-text id="selectedSongKey" align="Center" all-uppercase='true' on-click="CopyBSR" hover-hint="클릭하여 곡 키를 복사합니다"/>
-                <text text="BeatSaver 평점" align="Center" font-color='#7CF'/>
+                <text text="비트세이버 평점" align="Center" font-color='#7CF'/>
                 <text id="selectedRating" align="Center"/>
                 <text text="특성" align="Center" font-color='#7CF'/>
                 <text id="selectedCharacteristics" align="Center" font-size='3.3' word-wrapping='true'/>
@@ -21,7 +21,7 @@
 			</vertical>
 		</horizontal>
 		<horizontal>
-			<button on-click='OpenBeatSaver' text='BeatSaver 열기'/>
+			<button on-click='OpenBeatSaver' text='비트세이버 열기'/>
 			<button on-click='OpenMapPreview' text='웹 미리보기' hover-hint="브라우저에서 전체 맵을 다운로드하여 미리보기를 엽니다"/>
 			<button on-click='CloseModal' text='정보 닫기'/>
 		</horizontal>
