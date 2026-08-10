@@ -221,7 +221,7 @@ void ViewControllers::DownloadHistoryViewController::ProcessDownloads(bool force
         currentEntry->statusDetails = fmt::format(
             "({}%{})",
             (int) round(downloadProgress * 100),
-            currentEntry->retries == 0 ? "" : fmt::format(", retry {} / {}", currentEntry->retries, RETRY_COUNT)
+            currentEntry->retries == 0 ? "" : fmt::format(", 재시도 {} / {}", currentEntry->retries, RETRY_COUNT)
         );
         currentEntry->lastUpdate = now;
 
@@ -257,7 +257,7 @@ void ViewControllers::DownloadHistoryViewController::ProcessDownloads(bool force
                     message = fmt::format("Curl: {}", message);
                 } else {
                     if (responseCode == 404) {
-                        message = "Song is deleted";
+                        message = "곡이 삭제되었습니다";
                     } else {
                         message = Util::httpErrorToString(responseCode);
                     }
@@ -273,7 +273,7 @@ void ViewControllers::DownloadHistoryViewController::ProcessDownloads(bool force
         auto gotBeatmap = response.responseData.has_value();
         if (!gotBeatmap) {
             BSML::MainThreadScheduler::Schedule([this, currentEntry, forceTableReload] {
-                errored("Response is empty", currentEntry);
+                errored("응답 데이터가 비어 있습니다", currentEntry);
                 RefreshTable(true);
                 this->ProcessDownloads(forceTableReload);
             });
@@ -299,7 +299,7 @@ void ViewControllers::DownloadHistoryViewController::ProcessDownloads(bool force
                     message = fmt::format("Curl: {}", message);
                 } else {
                     if (responseCode == 404) {
-                        message = "Song file not found";
+                        message = "곡 파일을 찾을 수 없습니다";
                     } else {
                         message = Util::httpErrorToString(responseCode);
                     }
