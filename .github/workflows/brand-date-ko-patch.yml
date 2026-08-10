@@ -1,0 +1,61 @@
+name: One-shot brand and date Korean patch
+
+on:
+  push:
+    branches: [ brand-date-ko-patch ]
+    paths: [ '.github/workflows/brand-date-ko-patch.yml' ]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: brand-date-ko-patch
+
+      - name: Patch visible brand labels and date format
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path('assets/SongList.bsml'): {
+                  "BetterSongSearch 설정": "향상된 곡 검색 설정",
+                  "BetterSongSearch - 대기 중인 다운로드": "향상된 곡 검색 - 대기 중인 다운로드",
+                  "BetterSongSearch를 닫으면": "향상된 곡 검색을 닫으면",
+              },
+              Path('assets/Settings.bsml'): {
+                  "BetterSongSearch - 설정": "향상된 곡 검색 - 설정",
+                  "BetterSongSearch에서 곡을 플레이한 경우 솔로 메뉴를 나가면 BetterSongSearch로 돌아옵니다": "향상된 곡 검색에서 곡을 플레이한 경우 솔로 메뉴를 나가면 향상된 곡 검색으로 돌아옵니다",
+                  "솔로 종료 후 BSS로 복귀": "솔로 종료 후 향상된 곡 검색으로 복귀",
+              },
+              Path('assets/FilterView.bsml'): {
+                  "BetterSongSearch - 후원": "향상된 곡 검색 - 후원",
+              },
+              Path('src/UI/ViewControllers/FilterView.cpp'): {
+                  'fmt::format("{:%b:%Y}", fmt::localtime(std::chrono::system_clock::to_time_t(val)))': 'fmt::format("{:%Y.%m}", fmt::localtime(std::chrono::system_clock::to_time_t(val)))',
+                  'fmt::format("{:%d %b %y - %H:%M}", local_tm)': 'fmt::format("{:%Y.%m.%d - %H:%M}", local_tm)',
+              },
+          }
+
+          for path, mapping in replacements.items():
+              text = path.read_text(encoding='utf-8-sig')
+              for old, new in mapping.items():
+                  count = text.count(old)
+                  if count == 0:
+                      raise SystemExit(f'missing expected string in {path}: {old}')
+                  text = text.replace(old, new)
+                  print(f'{path}: {old} -> {new}: {count}')
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/SongList.bsml assets/Settings.bsml assets/FilterView.bsml src/UI/ViewControllers/FilterView.cpp
+          git commit -m "Localize visible brand labels and date formatting"
+          git push origin brand-date-ko-patch
