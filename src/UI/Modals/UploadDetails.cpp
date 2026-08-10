@@ -15,7 +15,7 @@ using namespace BetterSongSearch::Util;
 #define coro(coroutine) BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(coroutine))
 
 const std::vector<std::string> CHAR_GROUPING = {
-    "커스텀", "표준", "한손 세이버", "화살표 없음", "90도", "360도", "라이트쇼", "무규칙"
+    "커스텀", "양손", "한손", "화살표 없음", "90도", "360도", "라이트쇼", "무규칙"
 };
 
 DEFINE_TYPE(BetterSongSearch::UI::Modals, UploadDetails);
@@ -86,10 +86,9 @@ void Modals::UploadDetails::OpenModal(SongDetailsCache::Song const* song) {
     std::string characteristicsText = "";
     int loopCount = 1;
     for (auto& it : groupedDiffs) {
+        characteristicsText.append(fmt::format("{} x{}", it.first, it.second));
         if (loopCount < groupedDiffs.size()) {
-            characteristicsText.append(fmt::format("{} ×{}, ", it.first, it.second));
-        } else {
-            characteristicsText.append(fmt::format("{} ×{}", it.first, it.second));
+            characteristicsText.append("\n");
         }
         loopCount++;
     }
