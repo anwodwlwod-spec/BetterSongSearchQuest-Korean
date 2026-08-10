@@ -1,7 +1,7 @@
 ﻿<modal id="modal" clickerino-offerino-closerino='true' size-delta-x='80' size-delta-y='55' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 	<vertical horizontal-fit='Unconstrained' pad='4' pad-top='9'>
 		<horizontal bg='panel-top-gradient'  ignore-layout='true' anchor-max-x='.97' anchor-min-x='.03' anchor-min-y='1' anchor-pos-y='-5'>
-			<text text='BetterSongSearch - 일괄 다운로드' align='Center'/>
+			<text text='향상된 곡 검색 - 일괄 다운로드' align='Center'/>
 		</horizontal>
 		<text text='현재 목록의 스크롤 위치부터 필터 조건에 맞는 곡을 지정한 수만큼 한 번에 다운로드합니다.' word-wrapping='true'/>
 		<horizontal>
