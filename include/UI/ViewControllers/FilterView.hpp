@@ -55,7 +55,7 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::ViewControllers, FilterViewControlle
     // Options for dropdowns
     BSML_OPTIONS_LIST_OBJECT(downloadedFilterOptions, "전체", "다운로드만", "다운로드 제외");
     BSML_OPTIONS_LIST_OBJECT(scoreFilterOptions, "전체", "통과곡 제외", "통과곡만");
-    BSML_OPTIONS_LIST_OBJECT(rankedFilterOptions, "전체", "ScoreSaber 랭크", "BeatLeader 랭크", "ScoreSaber 예선", "BeatLeader 예선");
+    BSML_OPTIONS_LIST_OBJECT(rankedFilterOptions, "전체", "스코어세이버 랭크", "비트리더 랭크", "스코어세이버 예선", "비트리더 예선");
     BSML_OPTIONS_LIST_OBJECT(characteristics, "전체", "커스텀", "표준", "한손 세이버", "화살표 없음", "90도", "360도", "라이트쇼", "무규칙");
     BSML_OPTIONS_LIST_OBJECT(difficulties, "전체", "쉬움", "보통", "어려움", "전문가", "전문가+");
     BSML_OPTIONS_LIST_OBJECT(modOptions, "전체", "Noodle Extensions", "Mapping Extensions", "Chroma", "Cinema", "없음");
