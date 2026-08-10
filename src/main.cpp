@@ -138,7 +138,7 @@ MAKE_HOOK_MATCH(
 
         UnityW<HMUI::TextSegmentedControlCell> t = button->GetComponent<HMUI::TextSegmentedControlCell*>();
 
-        t->set_text("Better Song Search");
+        t->set_text("향상된 곡 검색");
 
         t.cast<HMUI::SelectableCell>()->____wasPressedSignal = nullptr;
 
