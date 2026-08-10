@@ -98,7 +98,7 @@ void ViewControllers::SongListController::PostParse() {
         searchBox = Instantiate(gameSearchBox->get_gameObject(), searchBoxContainer->get_transform(), false);
         UnityW<HMUI::InputFieldView> songSearchInput = searchBox->GetComponent<HMUI::InputFieldView*>();
         songSearchPlaceholder = searchBox->get_transform()->Find("PlaceholderText")->GetComponent<HMUI::CurvedTextMeshPro*>();
-        songSearchPlaceholder->set_text("Search by Song, Key, Mapper..");
+        songSearchPlaceholder->set_text("곡명, 키, 매퍼로 검색..");
         songSearchInput->____keyboardPositionOffset = Vector3(-15, -36, 0);
         songSearchInput->set_text("");  // Clear the text
 
@@ -188,7 +188,7 @@ void ViewControllers::SongListController::DidActivate(bool firstActivation, bool
             // Initial search
             dataHolder.forceReload = true;
             fcInstance->SongListController->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
-            fcInstance->FilterViewController->datasetInfoLabel->set_text(fmt::format("{} songs in dataset ", dataHolder.songDetails->songs.size()));
+            fcInstance->FilterViewController->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 ", dataHolder.songDetails->songs.size()));
         } else {
             this->DownloadSongList();
         }
@@ -213,15 +213,15 @@ void ViewControllers::SongListController::DidActivate(bool firstActivation, bool
         dataHolder.needsRefresh = false;  // Clear the flag
         dataHolder.forceReload = true;
         fcInstance->SongListController->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
-        fcInstance->FilterViewController->datasetInfoLabel->set_text(fmt::format("{} songs in dataset ", dataHolder.songDetails->songs.size()));
+        fcInstance->FilterViewController->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 ", dataHolder.songDetails->songs.size()));
     }
 
     // Restore search songs count
     if (dataHolder.loaded && !dataHolder.failed && songSearchPlaceholder) {
         if (dataHolder.GetDisplayedSongListLength() < dataHolder.songDetails->songs.size()) {
-            songSearchPlaceholder->set_text(fmt::format("Search {} songs", dataHolder.GetDisplayedSongListLength()));
+            songSearchPlaceholder->set_text(fmt::format("{}곡 검색", dataHolder.GetDisplayedSongListLength()));
         } else {
-            songSearchPlaceholder->set_text("Search by Song, Key, Mapper..");
+            songSearchPlaceholder->set_text("곡명, 키, 매퍼로 검색..");
         }
     }
 }
@@ -791,7 +791,7 @@ void ViewControllers::SongListController::SetIsDownloaded(bool isDownloaded, boo
 }
 
 void ViewControllers::SongListController::DownloadSongList() {
-    fcInstance->FilterViewController->datasetInfoLabel->set_text("Loading dataset...");
+    fcInstance->FilterViewController->datasetInfoLabel->set_text("데이터셋 불러오는 중...");
     dataHolder.DownloadSongList();
 }
 
@@ -822,9 +822,9 @@ void ViewControllers::SongListController::SearchDone() {
 
     if (songSearchPlaceholder) {
         if (dataHolder.GetDisplayedSongListLength() == dataHolder.songDetails->songs.size()) {
-            songSearchPlaceholder->set_text("Search by Song, Key, Mapper..");
+            songSearchPlaceholder->set_text("곡명, 키, 매퍼로 검색..");
         } else {
-            songSearchPlaceholder->set_text(fmt::format("Search {} songs", dataHolder.GetDisplayedSongListLength()));
+            songSearchPlaceholder->set_text(fmt::format("{}곡 검색", dataHolder.GetDisplayedSongListLength()));
         }
     }
 
