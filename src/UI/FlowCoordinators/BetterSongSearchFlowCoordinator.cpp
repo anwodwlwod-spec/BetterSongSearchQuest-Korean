@@ -36,7 +36,7 @@ void BetterSongSearch::UI::FlowCoordinators::BetterSongSearchFlowCoordinator::Di
         return;
     }
 
-    SetTitle("Better Song Search", HMUI::ViewController::AnimationType::In);
+    SetTitle("향상된 곡 검색", HMUI::ViewController::AnimationType::In);
     showBackButton = true;
     ProvideInitialViewControllers(SongListController, FilterViewController, DownloadHistoryViewController, nullptr, nullptr);
 }
