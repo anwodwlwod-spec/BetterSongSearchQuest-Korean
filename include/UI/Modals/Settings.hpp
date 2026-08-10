@@ -26,5 +26,5 @@ DECLARE_CLASS_CODEGEN(BetterSongSearch::UI::Modals, Settings, UnityEngine::MonoB
 
     DECLARE_BSML_PROPERTY(StringW, preferredLeaderboard);
     DECLARE_INSTANCE_FIELD(BSML::ModalView*, settingsModal);
-    BSML_OPTIONS_LIST_OBJECT(preferredLeaderboardOptions, "Scoresaber", "Beatleader");
+    BSML_OPTIONS_LIST_OBJECT(preferredLeaderboardOptions, "스코어세이버", "비트리더");
 };
