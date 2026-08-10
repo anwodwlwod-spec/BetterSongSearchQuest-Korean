@@ -15,7 +15,7 @@ using namespace BetterSongSearch::Util;
 #define coro(coroutine) BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(coroutine))
 
 const std::vector<std::string> CHAR_GROUPING = {
-    "Custom", "Standard", "OneSaber", "NoArrows", "NinetyDegree", "ThreeSixtyDegree", "LightShow", "Lawless"
+    "커스텀", "표준", "한손 세이버", "화살표 없음", "90도", "360도", "라이트쇼", "무규칙"
 };
 
 DEFINE_TYPE(BetterSongSearch::UI::Modals, UploadDetails);
@@ -96,7 +96,7 @@ void Modals::UploadDetails::OpenModal(SongDetailsCache::Song const* song) {
     selectedCharacteristics->set_text(characteristicsText);
     selectedSongKey->set_text(song->key());
     selectedRating->set_text(fmt::format("{:.1f}%", song->rating() * 100));
-    selectedSongDescription->SetText("Loading...");
+    selectedSongDescription->SetText("불러오는 중...");
     selectedSongDescription->ScrollTo(0, false);
 
     songDetailsLoading->get_gameObject()->SetActive(true);
