@@ -5,7 +5,7 @@
 		<vertical horizontal-fit='Unconstrained' pad='4' pad-bottom='2' pad-top='9'>
 			<horizontal bg='panel-top-gradient' ignore-layout='true' anchor-max-x='.97'
 				anchor-min-x='.03' anchor-min-y='1' anchor-pos-y='-5'>
-				<text text='BetterSongSearch - 필터 프리셋' align='Center' font-size='4' />
+				<text text='향상된 곡 검색 - 필터 프리셋' align='Center' font-size='4' />
 			</horizontal>
 			<horizontal horizontal-fit='PreferredSize'>
 				<vertical horizontal-fit='Unconstrained'>
@@ -26,7 +26,7 @@
 		<vertical horizontal-fit='Unconstrained' pad='4' pad-top='-1'>
 			<horizontal pad-right='-2' pad-left='-2'>
 				<horizontal bg='panel-top-gradient'>
-					<text text='BetterSongSearch - 프리셋 저장' align='Center' font-size='4' />
+					<text text='향상된 곡 검색 - 프리셋 저장' align='Center' font-size='4' />
 				</horizontal>
 			</horizontal>
 			<string-setting id="newPresetNameSetting" text='이름' />
