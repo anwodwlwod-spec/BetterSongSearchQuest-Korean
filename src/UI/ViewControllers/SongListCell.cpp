@@ -64,7 +64,7 @@ namespace BetterSongSearch::UI::ViewControllers {
     void CustomSongListTableCell::OnDestroy() {
         // Unsub from events
         // The only way this can be destroyed is if the game is closing,
-        // so no need to unsub, since songcore will be destroyed too
+        // so no need to unsubscribe, since songcore will be destroyed too
     }
 
     void CustomSongListTableCell::OnSongsLoaded(std::span<SongCore::SongLoader::CustomBeatmapLevel* const> songs) {
@@ -97,9 +97,10 @@ namespace BetterSongSearch::UI::ViewControllers {
 
         this->levelAuthorName->set_text(entry->levelAuthorName());
         this->songLengthAndRating->set_text(fmt::format(
-            "Length: {:%M:%S} Upvotes: {}, Downvotes: {}", std::chrono::seconds(entry->songDurationSeconds), entry->upvotes, entry->downvotes
+            "길이: {:%M:%S} 추천: {} 비추천: {}", std::chrono::seconds(entry->songDurationSeconds), entry->upvotes, entry->downvotes
         ));
-        this->uploadDateFormatted->set_text(fmt::format("{:%d. %b %Y}", fmt::localtime(entry->uploadTimeUnix)));
+        auto uploadTm = fmt::localtime(entry->uploadTimeUnix);
+        this->uploadDateFormatted->set_text(fmt::format("{}년 {}월 {}일", uploadTm.tm_year + 1900, uploadTm.tm_mon + 1, uploadTm.tm_mday));
         bool isDownloaded = fcInstance->DownloadHistoryViewController->CheckIsDownloaded(entry->hash());
 
         // Song name color
@@ -123,7 +124,7 @@ namespace BetterSongSearch::UI::ViewControllers {
         std::vector<DiffIndex> sortedDiffs;
         for (SongDetailsCache::SongDifficulty const& diff : *entry) {
             sortedDiffs.push_back({&diff, DifficultyCheck(&diff, entry), getStars(&diff)});
-        };
+        }
 
         // TODO: Actually sort diffs..
         std::stable_sort(sortedDiffs.begin(), sortedDiffs.end(), [entry](DiffIndex const& a, DiffIndex const& b) {
@@ -171,7 +172,7 @@ namespace BetterSongSearch::UI::ViewControllers {
                 continue;
             }
             if (diffsLeft != 1 && i == diffs.size() - 1) {
-                diffs[i]->set_text(fmt::format("<color=#0AD>{} More", diffsLeft));
+                diffs[i]->set_text(fmt::format("<color=#0AD>외 {}개", diffsLeft));
             } else {
                 bool passesFilter = sortedDiffs[i].passesFilter;
                 auto diffname = GetCombinedShortDiffName(entry->diffCount, sortedDiffs[i].diff);
