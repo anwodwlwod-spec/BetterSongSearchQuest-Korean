@@ -87,9 +87,9 @@ void Modals::UploadDetails::OpenModal(SongDetailsCache::Song const* song) {
     int loopCount = 1;
     for (auto& it : groupedDiffs) {
         if (loopCount < groupedDiffs.size()) {
-            characteristicsText.append(fmt::format("{}x {}, ", it.second, it.first));
+            characteristicsText.append(fmt::format("{} ×{}, ", it.first, it.second));
         } else {
-            characteristicsText.append(fmt::format("{}x {}", it.second, it.first));
+            characteristicsText.append(fmt::format("{} ×{}", it.first, it.second));
         }
         loopCount++;
     }
