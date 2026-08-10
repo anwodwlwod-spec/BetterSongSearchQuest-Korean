@@ -57,12 +57,15 @@ DEFINE_TYPE(BetterSongSearch::UI::ViewControllers, FilterViewController);
 
 // TODO: Fix unlimited to better search songs outside of filters boundaries
 custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateFilterSettings() {
+    // Wait for next frame
     co_yield reinterpret_cast<System::Collections::IEnumerator*>(UnityEngine::WaitForSeconds::New_ctor(0.1f));
 
+    // WARNING: There is a bug with bsml update, it runs before the value is changed for some reason
     bool filtersChanged = false;
 
     SAVE_STRING_CONFIG(this->existingSongs, downloadedFilterOptions, DownloadType);
     SAVE_STRING_CONFIG(this->existingScore, scoreFilterOptions, LocalScoreType);
+
     SAVE_STRING_CONFIG(this->characteristic, characteristics, CharacteristicType);
     SAVE_STRING_CONFIG(this->difficulty, difficulties, DifficultyType);
     SAVE_STRING_CONFIG(this->rankedState, rankedFilterOptions, RankedType);
@@ -81,28 +84,38 @@ custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateF
         getPluginConfig().MapStyleString.SetValue(this->mapStyleString);
     }
 
+    // Special case for saving date
     if (this->hideOlderThan != getPluginConfig().MinUploadDateInMonths.GetValue()) {
         filtersChanged = true;
+
         auto timestamp = GetDateAfterMonths(BEATSAVER_EPOCH, this->hideOlderThan).count();
         DEBUG("Date {}", GetDateAfterMonths(BEATSAVER_EPOCH, this->hideOlderThan));
+
         getPluginConfig().MinUploadDate.SetValue(timestamp);
         getPluginConfig().MinUploadDateInMonths.SetValue(this->hideOlderThan);
     }
 
+    // Special case for min song length
     if (this->minimumSongLength * 60 != getPluginConfig().MinLength.GetValue()) {
         int seconds = minimumSongLength * 60;
+
         filtersChanged = true;
         getPluginConfig().MinLength.SetValue(seconds);
     }
 
+    // Special case for max song length
     if (this->maximumSongLength * 60 != getPluginConfig().MaxLength.GetValue()) {
         int seconds = maximumSongLength * 60;
+
         filtersChanged = true;
         getPluginConfig().MaxLength.SetValue(seconds);
     }
 
+    // Save uploaders
     if (this->uploadersString != getPluginConfig().Uploaders.GetValue()) {
         filtersChanged = true;
+
+        // Save to config
         getPluginConfig().Uploaders.SetValue(this->uploadersString);
     }
 
@@ -110,10 +123,12 @@ custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateF
         filtersChanged = true;
         getPluginConfig().OnlyCuratedMaps.SetValue(this->onlyCuratedMaps);
     }
+
     if (this->onlyVerifiedMappers != getPluginConfig().OnlyVerifiedMappers.GetValue()) {
         filtersChanged = true;
         getPluginConfig().OnlyVerifiedMappers.SetValue(this->onlyVerifiedMappers);
     }
+
     if (this->onlyV3Maps != getPluginConfig().OnlyV3Maps.GetValue()) {
         filtersChanged = true;
         getPluginConfig().OnlyV3Maps.SetValue(this->onlyV3Maps);
@@ -121,7 +136,10 @@ custom_types::Helpers::Coroutine ViewControllers::FilterViewController::_UpdateF
 
     if (filtersChanged) {
         DEBUG("Filters changed");
+
+        // Update filter options state
         dataHolder.filterOptions.LoadFromConfig();
+
         auto controller = fcInstance->SongListController;
         controller->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
     } else {
@@ -140,14 +158,17 @@ void ViewControllers::FilterViewController::PostParse() {
     x->set_offsetMax(UnityEngine::Vector2(20.0f, 22.0f));
 
     auto maxUploadDate = BetterSongSearch::GetMonthsSinceDate(BEATSAVER_EPOCH);
+
     coro(BetterSongSearch::UI::Util::BSMLStuff::MergeSliders(this->get_gameObject()));
 
+    // Apply formatter functions Manually cause Red did not implement parsing for them in bsml
     std::function<StringW(float monthsSinceFirstUpload)> DateTimeToStr = [](float monthsSinceFirstUpload) {
         auto val = BetterSongSearch::GetTimepointAfterMonths(BEATSAVER_EPOCH, monthsSinceFirstUpload);
         auto local_tm = fmt::localtime(std::chrono::system_clock::to_time_t(val));
         return fmt::format("{}년 {}월", local_tm.tm_year + 1900, local_tm.tm_mon + 1);
     };
 
+    // Update the value and set the formatter
     hideOlderThanSlider->formatter = DateTimeToStr;
     hideOlderThanSlider->slider->set_maxValue(maxUploadDate);
     hideOlderThanSlider->slider->set_numberOfSteps(maxUploadDate);
@@ -157,6 +178,7 @@ void ViewControllers::FilterViewController::PostParse() {
     hideOlderThanSlider->ReceiveValue();
 
     auto getBgSprite = GetBGSprite("RoundRect10BorderFade");
+
     auto backgroundables = GetComponentsInChildren<BSML::Backgroundable*>();
     for (auto& backgroundable : backgroundables) {
         auto imageView = backgroundable->GetComponent<HMUI::ImageView*>();
@@ -169,51 +191,77 @@ void ViewControllers::FilterViewController::PostParse() {
         imageView->set_color(UnityEngine::Color(0.0f, 0.7f, 1.0f, 0.4f));
     }
 
+    // Format other values
     std::function minLengthSliderFormatFunction = [](float value) {
         float totalSeconds = value * 60;
         int minutes = ((int) totalSeconds % 3600) / 60;
         int seconds = (int) totalSeconds % 60;
+
         return fmt::format("{:02}:{:02}", minutes, seconds);
     };
     minimumSongLengthSlider->formatter = minLengthSliderFormatFunction;
 
+    // Max length format
     std::function maxLengthSliderFormatFunction = [](float value) {
         float totalSeconds = value * 60;
         int minutes = ((int) totalSeconds % 3600) / 60;
         int seconds = (int) totalSeconds % 60;
-        if (value >= SONG_LENGTH_FILTER_MAX) return (std::string) "무제한";
-        return fmt::format("{:02}:{:02}", minutes, seconds);
+
+        if (value >= SONG_LENGTH_FILTER_MAX) {
+            return (std::string) "무제한";
+        } else {
+            return fmt::format("{:02}:{:02}", minutes, seconds);
+        }
     };
     maximumSongLengthSlider->formatter = maxLengthSliderFormatFunction;
 
-    std::function minRatingSliderFormatFunction = [](float value) { return fmt::format("{:.1f}%", value * 100); };
+    // Min rating format
+    std::function minRatingSliderFormatFunction = [](float value) {
+        return fmt::format("{:.1f}%", value * 100);
+    };
     minimumRatingSlider->formatter = minRatingSliderFormatFunction;
 
-    std::function minNJSFormat = [](float value) { return fmt::format("{:.1f}", value); };
+    // NJS format
+    std::function minNJSFormat = [](float value) {
+        return fmt::format("{:.1f}", value);
+    };
     std::function maxNJSFormat = [](float value) {
-        if (value >= NJS_FILTER_MAX) return (std::string) "무제한";
+        if (value >= NJS_FILTER_MAX) {
+            return (std::string) "무제한";
+        }
         return fmt::format("{:.1f}", value);
     };
     minimumNjsSlider->formatter = minNJSFormat;
     maximumNjsSlider->formatter = maxNJSFormat;
 
-    std::function minNPSFormat = [](float value) { return fmt::format("{:.1f}", value); };
+    // NPS format
+    std::function minNPSFormat = [](float value) {
+        return fmt::format("{:.1f}", value);
+    };
     std::function maxNPSFormat = [](float value) {
-        if (value >= NPS_FILTER_MAX) return (std::string) "무제한";
+        if (value >= NPS_FILTER_MAX) {
+            return (std::string) "무제한";
+        }
         return fmt::format("{:.1f}", value);
     };
     minimumNpsSlider->formatter = minNPSFormat;
     maximumNpsSlider->formatter = maxNPSFormat;
 
-    std::function minStarFormat = [](float value) { return fmt::format("{:.1f}", value); };
+    // Stars formatting
+    std::function minStarFormat = [](float value) {
+        return fmt::format("{:.1f}", value);
+    };
     std::function maxStarFormat = [](float value) {
-        if (value >= STAR_FILTER_MAX) return (std::string) "무제한";
+        if (value >= STAR_FILTER_MAX) {
+            return (std::string) "무제한";
+        }
         return fmt::format("{:.1f}", value);
     };
     minStarsSetting->formatter = minStarFormat;
     maxStarsSetting->formatter = maxStarFormat;
-
-    std::function minimumVotesFormat = [](float value) { return fmt::format("{}", (int) value); };
+    std::function minimumVotesFormat = [](float value) {
+        return fmt::format("{}", (int) value);
+    };
     minimumVotesSlider->formatter = minimumVotesFormat;
 
     std::function<std::string(StringW)> uploadersStringFormat = [](std::string value) {
@@ -226,18 +274,25 @@ void ViewControllers::FilterViewController::PostParse() {
         } else {
             return (std::string) "";
         }
+
         auto uploaders = split(value, " ");
-        return fmt::format("{} <color=#CCC>{}</color>명", (blacklist ? "숨김" : "표시"), uploaders.size());
+
+        return fmt::format(
+            "{} <color=#CCC>{}</color>명", (blacklist ? "숨김" : "표시"), uploaders.size()
+        );
     };
     uploadersStringControl->formatter = uploadersStringFormat;
     mapStyleDropdown->formatter = Formatters::FormatMapStyle;
 
     ForceFormatValues();
 
+    // I hate BSML sometimes
     auto m = modsRequirementDropdown->dropdown->____modalView;
     m->get_transform().cast<UnityEngine::RectTransform>()->set_pivot(UnityEngine::Vector2(0.5f, 0.3f));
 
-    if (versionLabel) versionLabel->set_text(fmt::format("{}", VERSION));
+    if (versionLabel) {
+        versionLabel->set_text(fmt::format("{}", VERSION));
+    }
 
     if (mapStyleDropdown) {
         auto c = std::min(9, this->get_mapStyles()->____size);
@@ -246,11 +301,13 @@ void ViewControllers::FilterViewController::PostParse() {
         auto m = mapStyleDropdown->dropdown->____modalView;
         m->get_transform().cast<UnityEngine::RectTransform>()->set_pivot(UnityEngine::Vector2(0.5f, 0.83f - (c * 0.041f)));
     }
+
     if (difficultyDropdown) {
         auto c = std::min(9, this->get_difficulties()->____size);
         difficultyDropdown->dropdown->____numberOfVisibleCells = c;
         difficultyDropdown->dropdown->ReloadData();
     }
+
     if (characteristicDropdown) {
         auto c = std::min(9, this->get_characteristics()->____size);
         characteristicDropdown->dropdown->____numberOfVisibleCells = c;
@@ -258,6 +315,7 @@ void ViewControllers::FilterViewController::PostParse() {
         auto m = characteristicDropdown->dropdown->____modalView;
         m->get_transform().cast<UnityEngine::RectTransform>()->set_pivot(UnityEngine::Vector2(0.5f, 0.83f - (c * 0.045f)));
     }
+
     if (modsRequirementDropdown) {
         auto c = std::min(9, this->get_modOptions()->____size);
         modsRequirementDropdown->dropdown->____numberOfVisibleCells = c;
@@ -265,6 +323,7 @@ void ViewControllers::FilterViewController::PostParse() {
         auto m = modsRequirementDropdown->dropdown->____modalView;
         m->get_transform().cast<UnityEngine::RectTransform>()->set_pivot(UnityEngine::Vector2(0.5f, 0.0f + (c * 0.021f)));
     }
+
     if (rankedStateSetting) {
         auto c = std::min(9, this->get_rankedFilterOptions()->____size);
         rankedStateSetting->dropdown->____numberOfVisibleCells = c;
@@ -275,22 +334,38 @@ void ViewControllers::FilterViewController::PostParse() {
 
     if (this->datasetInfoLabel && dataHolder.songDetails->songs.get_isDataAvailable()) {
         std::chrono::sys_seconds timeScraped = dataHolder.songDetails->get_scrapeEndedTimeUnix();
+
         std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
         std::tm local_tm = *std::localtime(&tt);
-        std::string timeScrapedString = fmt::format("{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min);
-        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString));
+
+        std::string timeScrapedString = fmt::format(
+            "{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min
+        );
+
+        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
+        );
     } else {
         datasetInfoLabel->set_text("불러오는 중...");
     }
 }
 
 void ViewControllers::FilterViewController::DidActivate(bool firstActivation, bool addedToHeirarchy, bool screenSystemDisabling) {
-    if (!firstActivation) return;
+    if (!firstActivation) {
+        return;
+    }
+
+    // Register modals
     presetsModal = this->get_gameObject()->AddComponent<UI::Modals::Presets*>();
     genrePickerModal = this->get_gameObject()->AddComponent<UI::Modals::GenrePicker*>();
+
     INFO("Filter View controller activated");
+
+    // Load the values from the config
     UpdateLocalState();
+
+    // Create bsml view
     BSML::parse_and_construct(Assets::FilterView_bsml, this->get_transform(), this);
+
 #ifdef HotReload
     fileWatcher->filePath = "/sdcard/bsml/BetterSongSearch/FilterView.bsml";
     fileWatcher->checkInterval = 0.5f;
@@ -298,13 +373,22 @@ void ViewControllers::FilterViewController::DidActivate(bool firstActivation, bo
 }
 
 void ViewControllers::FilterViewController::UpdateGenreFilterText() {
+    // Get the current filter
     auto [included, excluded] = dataHolder.filterOptions.CountTags();
+
     std::string genreFilter = "전체";
-    if (included > 0 || excluded > 0) genreFilter = fmt::format("포함 {} / 제외 {}", included, excluded);
-    if (genrePickButton) genrePickButton->GetComponentInChildren<HMUI::CurvedTextMeshPro*>()->set_text(genreFilter);
+
+    if (included > 0 || excluded > 0) {
+        genreFilter = fmt::format("포함 {} / 제외 {}", included, excluded);
+    }
+
+    if (genrePickButton) {
+        genrePickButton->GetComponentInChildren<HMUI::CurvedTextMeshPro*>()->set_text(genreFilter);
+    }
 }
 
 void ViewControllers::FilterViewController::ForceFormatValues() {
+    // Force format values
     FormatSliderSettingValue(this->minStarsSetting);
     FormatSliderSettingValue(this->maxStarsSetting);
     FormatSliderSettingValue(this->minimumNjsSlider);
@@ -316,22 +400,46 @@ void ViewControllers::FilterViewController::ForceFormatValues() {
     FormatSliderSettingValue(this->minimumRatingSlider);
     FormatSliderSettingValue(this->minimumVotesSlider);
     FormatStringSettingValue(this->uploadersStringControl);
+
     UpdateGenreFilterText();
 }
 
-void ViewControllers::FilterViewController::UpdateFilterSettings() { coro(limitedUpdateFilterSettings->CallNextFrame()); }
-void ViewControllers::FilterViewController::OpenSponsorsModal() { if (this->sponsorModal) sponsorModal->Show(); }
-void ViewControllers::FilterViewController::CloseSponsorModal() { if (this->sponsorModal) sponsorModal->Hide(); }
-void ViewControllers::FilterViewController::OpenSponsorsLink() { DEBUG("OpenSponsorsLink FIRED"); }
-void ViewControllers::FilterViewController::ShowGenrePicker() { DEBUG("ShowGenrePicker FIRED"); this->genrePickerModal->OpenModal(); }
+void ViewControllers::FilterViewController::UpdateFilterSettings() {
+    // We need to wait 1 frame for all the properties to get applied and then save the values?
+    coro(limitedUpdateFilterSettings->CallNextFrame());
+}
+
+// Sponsors related things
+void ViewControllers::FilterViewController::OpenSponsorsModal() {
+    if (this->sponsorModal) {
+        sponsorModal->Show();
+    }
+}
+
+void ViewControllers::FilterViewController::CloseSponsorModal() {
+    if (this->sponsorModal) {
+        sponsorModal->Hide();
+    }
+}
+
+void ViewControllers::FilterViewController::OpenSponsorsLink() {
+    DEBUG("OpenSponsorsLink FIRED");
+}
+
+void ViewControllers::FilterViewController::ShowGenrePicker() {
+    DEBUG("ShowGenrePicker FIRED");
+    this->genrePickerModal->OpenModal();
+}
 
 void ViewControllers::FilterViewController::UpdateLocalState() {
+    // Load from dataHolder
     this->existingSongs = this->get_downloadedFilterOptions()->get_Item((int) dataHolder.filterOptions.downloadType);
     this->existingScore = this->get_scoreFilterOptions()->get_Item((int) dataHolder.filterOptions.localScoreType);
     this->characteristic = this->get_characteristics()->get_Item((int) dataHolder.filterOptions.charFilter);
     this->rankedState = this->get_rankedFilterOptions()->get_Item((int) dataHolder.filterOptions.rankedType);
     this->difficulty = this->get_difficulties()->get_Item((int) dataHolder.filterOptions.difficultyFilter);
     this->mods = this->get_modOptions()->get_Item((int) dataHolder.filterOptions.modRequirement);
+
     this->minimumSongLength = dataHolder.filterOptions.minLength / 60.0f;
     this->maximumSongLength = dataHolder.filterOptions.maxLength / 60.0f;
     this->minimumNjs = dataHolder.filterOptions.minNJS;
@@ -342,8 +450,11 @@ void ViewControllers::FilterViewController::UpdateLocalState() {
     this->maximumStars = dataHolder.filterOptions.maxStars;
     this->minimumRating = dataHolder.filterOptions.minRating;
     this->minimumVotes = dataHolder.filterOptions.minVotes;
+
+    // TODO: Maybe save it to the preset too
     this->hideOlderThan = getPluginConfig().MinUploadDateInMonths.GetValue();
     this->uploadersString = getPluginConfig().Uploaders.GetValue();
+
     this->onlyCuratedMaps = getPluginConfig().OnlyCuratedMaps.GetValue();
     this->onlyVerifiedMappers = getPluginConfig().OnlyVerifiedMappers.GetValue();
     this->onlyV3Maps = getPluginConfig().OnlyV3Maps.GetValue();
@@ -351,6 +462,8 @@ void ViewControllers::FilterViewController::UpdateLocalState() {
 }
 
 void ViewControllers::FilterViewController::ForceRefreshUI() {
+    // Refresh UI
+    // Force format values
     SetSliderSettingValue(this->minimumSongLengthSlider, this->minimumSongLength);
     SetSliderSettingValue(this->maximumSongLengthSlider, this->maximumSongLength);
     SetSliderSettingValue(this->minimumNjsSlider, this->minimumNjs);
@@ -370,13 +483,19 @@ void ViewControllers::FilterViewController::ForceRefreshUI() {
     difficultyDropdown->set_Value(static_cast<System::String*>(this->difficulty.convert()));
     modsRequirementDropdown->set_Value(static_cast<System::String*>(this->mods.convert()));
     mapStyleDropdown->set_Value(static_cast<System::String*>(this->mapStyleString.convert()));
+
     onlyCuratedMapsToggle->set_Value(this->onlyCuratedMaps);
     onlyVerifiedMappersToggle->set_Value(this->onlyVerifiedMappers);
     onlyV3MapsToggle->set_Value(this->onlyV3Maps);
+
     UpdateGenreFilterText();
 }
 
+// Top buttons
 void ViewControllers::FilterViewController::ClearFilters() {
+    DEBUG("ClearFilters FIRED");
+
+    // Reset config
     getPluginConfig().DownloadType.SetValue(getPluginConfig().DownloadType.GetDefaultValue());
     getPluginConfig().LocalScoreType.SetValue(getPluginConfig().LocalScoreType.GetDefaultValue());
     getPluginConfig().CharacteristicType.SetValue(getPluginConfig().CharacteristicType.GetDefaultValue());
@@ -403,62 +522,101 @@ void ViewControllers::FilterViewController::ClearFilters() {
     getPluginConfig().MapGenreString.SetValue(getPluginConfig().MapGenreString.GetDefaultValue());
     getPluginConfig().MapStyleString.SetValue(getPluginConfig().MapStyleString.GetDefaultValue());
     getPluginConfig().MapGenreExcludeString.SetValue(getPluginConfig().MapGenreExcludeString.GetDefaultValue());
+
+    // Load to dataHolder
     dataHolder.filterOptions.LoadFromConfig();
+
+    // Refresh FilterView state from settings and DataHolder
     UpdateLocalState();
+
+    // Force refresh UI
     ForceRefreshUI();
+
     DEBUG("Filters changed");
     auto controller = fcInstance->SongListController;
     controller->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
 }
 
-void ViewControllers::FilterViewController::ShowPresets() { this->presetsModal->OpenModal(); }
+void ViewControllers::FilterViewController::ShowPresets() {
+    this->presetsModal->OpenModal();
+}
+
+// StringW ViewControllers::FilterViewController::DateTimeToStr(int d) {
+//     // FilterView.hideOlderThanOptions[d].ToString("MMM yyyy", CultureInfo.InvariantCulture);
+// }
 void ViewControllers::FilterViewController::TryToDownloadDataset() {
-    if (fcInstance && fcInstance->SongListController) fcInstance->SongListController->RetryDownloadSongList();
+    if (fcInstance) {
+        if (fcInstance->SongListController) {
+            fcInstance->SongListController->RetryDownloadSongList();
+        }
+    }
     DEBUG("TryToDownloadDataset");
 }
 
 void ViewControllers::FilterViewController::ctor() {
     INVOKE_CTOR();
     DEBUG("FilterViewController ctor");
+    // Sub to events
     dataHolder.loadingFinished += {&ViewControllers::FilterViewController::OnLoaded, this};
     dataHolder.loadingFailed += {&ViewControllers::FilterViewController::OnFailed, this};
     dataHolder.searchEnded += {&ViewControllers::FilterViewController::OnSearchComplete, this};
-    limitedUpdateFilterSettings = new BetterSongSearch::Util::RatelimitCoroutine([this]() {
-        DEBUG("RUNNING limitedUpdateFilterSettings");
-        coro(this->_UpdateFilterSettings());
-    }, 0.2f);
+
+    limitedUpdateFilterSettings = new BetterSongSearch::Util::RatelimitCoroutine(
+        [this]() {
+            DEBUG("RUNNING limitedUpdateFilterSettings");
+            coro(this->_UpdateFilterSettings());
+        },
+        0.2f
+    );
 }
 
 void ViewControllers::FilterViewController::OnDestroy() {
+    // Unsub from events
     DEBUG("FilterViewController onDestroy");
     dataHolder.loadingFinished -= {&ViewControllers::FilterViewController::OnLoaded, this};
     dataHolder.loadingFailed -= {&ViewControllers::FilterViewController::OnFailed, this};
     dataHolder.searchEnded -= {&ViewControllers::FilterViewController::OnSearchComplete, this};
-    if (limitedUpdateFilterSettings) delete limitedUpdateFilterSettings;
+
+    if (limitedUpdateFilterSettings) {
+        delete limitedUpdateFilterSettings;
+    }
 }
 
 void ViewControllers::FilterViewController::OnLoaded() {
     INFO("Loaded dataset");
+
     if (!dataHolder.songDetails) {
         ERROR("SongDetails is null");
         return;
     }
+
     if (!dataHolder.songDetails->songs.get_isDataAvailable()) {
         ERROR("Data is not available somehow, bailing out");
         return;
     }
+
     BSML::MainThreadScheduler::Schedule([this] {
         std::chrono::sys_seconds timeScraped = dataHolder.songDetails->get_scrapeEndedTimeUnix();
+
         std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
         std::tm local_tm = *std::localtime(&tt);
-        std::string timeScrapedString = fmt::format("{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min);
-        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString));
+
+        std::string timeScrapedString = fmt::format(
+            "{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min
+        );
+
+        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
+        );
     });
 }
 
 void ViewControllers::FilterViewController::OnFailed(std::string message) {
     DEBUG("Failed to load dataset: {}", message);
-    BSML::MainThreadScheduler::Schedule([this, message] { this->datasetInfoLabel->set_text(fmt::format("{} · 클릭하여 다시 시도", message)); });
+    BSML::MainThreadScheduler::Schedule([this, message] {
+        this->datasetInfoLabel->set_text(fmt::format("{} · 클릭하여 다시 시도", message));
+    });
 }
 
-void ViewControllers::FilterViewController::OnSearchComplete() { INFO("Search complete"); }
+void ViewControllers::FilterViewController::OnSearchComplete() {
+    INFO("Search complete");
+}
