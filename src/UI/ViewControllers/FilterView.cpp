@@ -164,7 +164,8 @@ void ViewControllers::FilterViewController::PostParse() {
     // Apply formatter functions Manually cause Red did not implement parsing for them in bsml
     std::function<StringW(float monthsSinceFirstUpload)> DateTimeToStr = [](float monthsSinceFirstUpload) {
         auto val = BetterSongSearch::GetTimepointAfterMonths(BEATSAVER_EPOCH, monthsSinceFirstUpload);
-        return fmt::format("{:%Y.%m}", fmt::localtime(std::chrono::system_clock::to_time_t(val)));
+        auto local_tm = fmt::localtime(std::chrono::system_clock::to_time_t(val));
+        return fmt::format("{}년 {}월", local_tm.tm_year + 1900, local_tm.tm_mon + 1);
     };
 
     // Update the value and set the formatter
@@ -337,7 +338,7 @@ void ViewControllers::FilterViewController::PostParse() {
         std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
         std::tm local_tm = *std::localtime(&tt);
 
-        std::string timeScrapedString = fmt::format("{:%Y.%m.%d - %H:%M}", local_tm);
+        std::string timeScrapedString = fmt::format("{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min);
 
         this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
         );
@@ -426,192 +427,4 @@ void ViewControllers::FilterViewController::OpenSponsorsLink() {
 void ViewControllers::FilterViewController::ShowGenrePicker() {
     DEBUG("ShowGenrePicker FIRED");
     this->genrePickerModal->OpenModal();
-}
-
-void ViewControllers::FilterViewController::UpdateLocalState() {
-    // Load from dataHolder
-    this->existingSongs = this->get_downloadedFilterOptions()->get_Item((int) dataHolder.filterOptions.downloadType);
-    this->existingScore = this->get_scoreFilterOptions()->get_Item((int) dataHolder.filterOptions.localScoreType);
-    this->characteristic = this->get_characteristics()->get_Item((int) dataHolder.filterOptions.charFilter);
-    this->rankedState = this->get_rankedFilterOptions()->get_Item((int) dataHolder.filterOptions.rankedType);
-    this->difficulty = this->get_difficulties()->get_Item((int) dataHolder.filterOptions.difficultyFilter);
-    this->mods = this->get_modOptions()->get_Item((int) dataHolder.filterOptions.modRequirement);
-
-    this->minimumSongLength = dataHolder.filterOptions.minLength / 60.0f;
-    this->maximumSongLength = dataHolder.filterOptions.maxLength / 60.0f;
-    this->minimumNjs = dataHolder.filterOptions.minNJS;
-    this->maximumNjs = dataHolder.filterOptions.maxNJS;
-    this->minimumNps = dataHolder.filterOptions.minNPS;
-    this->maximumNps = dataHolder.filterOptions.maxNPS;
-    this->minimumStars = dataHolder.filterOptions.minStars;
-    this->maximumStars = dataHolder.filterOptions.maxStars;
-    this->minimumRating = dataHolder.filterOptions.minRating;
-    this->minimumVotes = dataHolder.filterOptions.minVotes;
-
-    // TODO: Maybe save it to the preset too
-    this->hideOlderThan = getPluginConfig().MinUploadDateInMonths.GetValue();
-    this->uploadersString = getPluginConfig().Uploaders.GetValue();
-
-    this->onlyCuratedMaps = getPluginConfig().OnlyCuratedMaps.GetValue();
-    this->onlyVerifiedMappers = getPluginConfig().OnlyVerifiedMappers.GetValue();
-    this->onlyV3Maps = getPluginConfig().OnlyV3Maps.GetValue();
-    this->mapStyleString = getPluginConfig().MapStyleString.GetValue();
-}
-
-void ViewControllers::FilterViewController::ForceRefreshUI() {
-    // Refresh UI
-    // Force format values
-    SetSliderSettingValue(this->minimumSongLengthSlider, this->minimumSongLength);
-    SetSliderSettingValue(this->maximumSongLengthSlider, this->maximumSongLength);
-    SetSliderSettingValue(this->minimumNjsSlider, this->minimumNjs);
-    SetSliderSettingValue(this->maximumNjsSlider, this->maximumNjs);
-    SetSliderSettingValue(this->minimumNpsSlider, this->minimumNps);
-    SetSliderSettingValue(this->maximumNpsSlider, this->maximumNps);
-    SetSliderSettingValue(this->minStarsSetting, this->minimumStars);
-    SetSliderSettingValue(this->maxStarsSetting, this->maximumStars);
-    SetSliderSettingValue(this->minimumRatingSlider, this->minimumRating);
-    SetSliderSettingValue(this->minimumVotesSlider, this->minimumVotes);
-    SetSliderSettingValue(this->hideOlderThanSlider, this->hideOlderThan);
-    SetStringSettingValue(this->uploadersStringControl, getPluginConfig().Uploaders.GetValue());
-    existingSongsSetting->set_Value(static_cast<System::String*>(this->existingSongs.convert()));
-    existingScoreSetting->set_Value(static_cast<System::String*>(this->existingScore.convert()));
-    rankedStateSetting->set_Value(static_cast<System::String*>(this->rankedState.convert()));
-    characteristicDropdown->set_Value(static_cast<System::String*>(this->characteristic.convert()));
-    difficultyDropdown->set_Value(static_cast<System::String*>(this->difficulty.convert()));
-    modsRequirementDropdown->set_Value(static_cast<System::String*>(this->mods.convert()));
-    mapStyleDropdown->set_Value(static_cast<System::String*>(this->mapStyleString.convert()));
-
-    onlyCuratedMapsToggle->set_Value(this->onlyCuratedMaps);
-    onlyVerifiedMappersToggle->set_Value(this->onlyVerifiedMappers);
-    onlyV3MapsToggle->set_Value(this->onlyV3Maps);
-
-    UpdateGenreFilterText();
-}
-
-// Top buttons
-void ViewControllers::FilterViewController::ClearFilters() {
-    DEBUG("ClearFilters FIRED");
-
-    // Reset config
-    getPluginConfig().DownloadType.SetValue(getPluginConfig().DownloadType.GetDefaultValue());
-    getPluginConfig().LocalScoreType.SetValue(getPluginConfig().LocalScoreType.GetDefaultValue());
-    getPluginConfig().CharacteristicType.SetValue(getPluginConfig().CharacteristicType.GetDefaultValue());
-    getPluginConfig().RankedType.SetValue(getPluginConfig().RankedType.GetDefaultValue());
-    getPluginConfig().DifficultyType.SetValue(getPluginConfig().DifficultyType.GetDefaultValue());
-    getPluginConfig().RequirementType.SetValue(getPluginConfig().RequirementType.GetDefaultValue());
-    getPluginConfig().MinLength.SetValue(getPluginConfig().MinLength.GetDefaultValue());
-    getPluginConfig().MaxLength.SetValue(getPluginConfig().MaxLength.GetDefaultValue());
-    getPluginConfig().MinNJS.SetValue(getPluginConfig().MinNJS.GetDefaultValue());
-    getPluginConfig().MaxNJS.SetValue(getPluginConfig().MaxNJS.GetDefaultValue());
-    getPluginConfig().MinNPS.SetValue(getPluginConfig().MinNPS.GetDefaultValue());
-    getPluginConfig().MaxNPS.SetValue(getPluginConfig().MaxNPS.GetDefaultValue());
-    getPluginConfig().MinStars.SetValue(getPluginConfig().MinStars.GetDefaultValue());
-    getPluginConfig().MaxStars.SetValue(getPluginConfig().MaxStars.GetDefaultValue());
-    getPluginConfig().MinUploadDate.SetValue(getPluginConfig().MinUploadDate.GetDefaultValue());
-    getPluginConfig().MinRating.SetValue(getPluginConfig().MinRating.GetDefaultValue());
-    getPluginConfig().MinVotes.SetValue(getPluginConfig().MinVotes.GetDefaultValue());
-    getPluginConfig().Uploaders.SetValue(getPluginConfig().Uploaders.GetDefaultValue());
-    getPluginConfig().MinUploadDateInMonths.SetValue(getPluginConfig().MinUploadDateInMonths.GetDefaultValue());
-    getPluginConfig().MinUploadDate.SetValue(getPluginConfig().MinUploadDate.GetDefaultValue());
-    getPluginConfig().OnlyVerifiedMappers.SetValue(getPluginConfig().OnlyVerifiedMappers.GetDefaultValue());
-    getPluginConfig().OnlyCuratedMaps.SetValue(getPluginConfig().OnlyCuratedMaps.GetDefaultValue());
-    getPluginConfig().OnlyV3Maps.SetValue(getPluginConfig().OnlyV3Maps.GetDefaultValue());
-    getPluginConfig().MapGenreString.SetValue(getPluginConfig().MapGenreString.GetDefaultValue());
-    getPluginConfig().MapStyleString.SetValue(getPluginConfig().MapStyleString.GetDefaultValue());
-    getPluginConfig().MapGenreExcludeString.SetValue(getPluginConfig().MapGenreExcludeString.GetDefaultValue());
-
-    // Load to dataHolder
-    dataHolder.filterOptions.LoadFromConfig();
-
-    // Refresh FilterView state from settings and DataHolder
-    UpdateLocalState();
-
-    // Force refresh UI
-    ForceRefreshUI();
-
-    DEBUG("Filters changed");
-    auto controller = fcInstance->SongListController;
-    controller->SortAndFilterSongs(dataHolder.sort, dataHolder.search, true);
-}
-
-void ViewControllers::FilterViewController::ShowPresets() {
-    this->presetsModal->OpenModal();
-}
-
-// StringW ViewControllers::FilterViewController::DateTimeToStr(int d) {
-//     // FilterView.hideOlderThanOptions[d].ToString("MMM yyyy", CultureInfo.InvariantCulture);
-// }
-void ViewControllers::FilterViewController::TryToDownloadDataset() {
-    if (fcInstance) {
-        if (fcInstance->SongListController) {
-            fcInstance->SongListController->RetryDownloadSongList();
-        }
-    }
-    DEBUG("TryToDownloadDataset");
-}
-
-void ViewControllers::FilterViewController::ctor() {
-    INVOKE_CTOR();
-    DEBUG("FilterViewController ctor");
-    // Sub to events
-    dataHolder.loadingFinished += {&ViewControllers::FilterViewController::OnLoaded, this};
-    dataHolder.loadingFailed += {&ViewControllers::FilterViewController::OnFailed, this};
-    dataHolder.searchEnded += {&ViewControllers::FilterViewController::OnSearchComplete, this};
-
-    limitedUpdateFilterSettings = new BetterSongSearch::Util::RatelimitCoroutine(
-        [this]() {
-            DEBUG("RUNNING limitedUpdateFilterSettings");
-            coro(this->_UpdateFilterSettings());
-        },
-        0.2f
-    );
-}
-
-void ViewControllers::FilterViewController::OnDestroy() {
-    // Unsub from events
-    DEBUG("FilterViewController onDestroy");
-    dataHolder.loadingFinished -= {&ViewControllers::FilterViewController::OnLoaded, this};
-    dataHolder.loadingFailed -= {&ViewControllers::FilterViewController::OnFailed, this};
-    dataHolder.searchEnded -= {&ViewControllers::FilterViewController::OnSearchComplete, this};
-
-    if (limitedUpdateFilterSettings) {
-        delete limitedUpdateFilterSettings;
-    }
-}
-
-void ViewControllers::FilterViewController::OnLoaded() {
-    INFO("Loaded dataset");
-
-    if (!dataHolder.songDetails) {
-        ERROR("SongDetails is null");
-        return;
-    }
-
-    if (!dataHolder.songDetails->songs.get_isDataAvailable()) {
-        ERROR("Data is not available somehow, bailing out");
-        return;
-    }
-
-    BSML::MainThreadScheduler::Schedule([this] {
-        std::chrono::sys_seconds timeScraped = dataHolder.songDetails->get_scrapeEndedTimeUnix();
-
-        std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
-        std::tm local_tm = *std::localtime(&tt);
-
-        std::string timeScrapedString = fmt::format("{:%Y.%m.%d - %H:%M}", local_tm);
-
-        this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
-        );
-    });
-}
-
-void ViewControllers::FilterViewController::OnFailed(std::string message) {
-    DEBUG("Failed to load dataset: {}", message);
-    BSML::MainThreadScheduler::Schedule([this, message] {
-        this->datasetInfoLabel->set_text(fmt::format("{} · 클릭하여 다시 시도", message));
-    });
-}
-
-void ViewControllers::FilterViewController::OnSearchComplete() {
-    INFO("Search complete");
 }
