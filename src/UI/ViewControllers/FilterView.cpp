@@ -164,7 +164,8 @@ void ViewControllers::FilterViewController::PostParse() {
     // Apply formatter functions Manually cause Red did not implement parsing for them in bsml
     std::function<StringW(float monthsSinceFirstUpload)> DateTimeToStr = [](float monthsSinceFirstUpload) {
         auto val = BetterSongSearch::GetTimepointAfterMonths(BEATSAVER_EPOCH, monthsSinceFirstUpload);
-        return fmt::format("{:%b:%Y}", fmt::localtime(std::chrono::system_clock::to_time_t(val)));
+        auto local_tm = fmt::localtime(std::chrono::system_clock::to_time_t(val));
+        return fmt::format("{}월 {}년", local_tm.tm_mon + 1, local_tm.tm_year + 1900);
     };
 
     // Update the value and set the formatter
@@ -337,7 +338,9 @@ void ViewControllers::FilterViewController::PostParse() {
         std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
         std::tm local_tm = *std::localtime(&tt);
 
-        std::string timeScrapedString = fmt::format("{:%d %b %y - %H:%M}", local_tm);
+        std::string timeScrapedString = fmt::format(
+            "{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min
+        );
 
         this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
         );
@@ -598,7 +601,9 @@ void ViewControllers::FilterViewController::OnLoaded() {
         std::time_t tt = std::chrono::system_clock::to_time_t(timeScraped);
         std::tm local_tm = *std::localtime(&tt);
 
-        std::string timeScrapedString = fmt::format("{:%d %b %y - %H:%M}", local_tm);
+        std::string timeScrapedString = fmt::format(
+            "{}년 {}월 {}일 - {:02}:{:02}", local_tm.tm_year + 1900, local_tm.tm_mon + 1, local_tm.tm_mday, local_tm.tm_hour, local_tm.tm_min
+        );
 
         this->datasetInfoLabel->set_text(fmt::format("데이터셋 {}곡 · 마지막 업데이트: {}", dataHolder.songDetails->songs.size(), timeScrapedString)
         );
